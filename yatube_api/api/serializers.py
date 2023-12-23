@@ -31,4 +31,4 @@ class CommentSerializer(serializers.ModelSerializer):
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
-        fields = '__all__'
+        fields = ('user',)

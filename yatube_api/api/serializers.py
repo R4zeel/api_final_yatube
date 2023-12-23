@@ -12,7 +12,6 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
-    group = GroupSerializer(required=False)
 
     class Meta:
         model = Post
@@ -26,7 +25,6 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('id', 'text', 'post', 'text', 'created', 'author')
         read_only_fields = ('post',)
-
 
 
 class FollowSerializer(serializers.ModelSerializer):

@@ -33,7 +33,11 @@ class PostViewSet(viewsets.ModelViewSet):
     
     def paginate_queryset(self, queryset):
         if 'limit' in self.request.GET or 'offset' in self.request.GET:
-            return self.paginator.paginate_queryset(queryset, self.request, view=self)
+            return self.paginator.paginate_queryset(
+                queryset, 
+                self.request, 
+                view=self
+                )
         return None
 
 

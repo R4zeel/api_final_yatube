@@ -12,6 +12,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
+    group = GroupSerializer(required=False)
 
     class Meta:
         model = Post
@@ -29,6 +30,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField
+    following = serializers.StringRelatedField
+
     class Meta:
         model = Follow
-        fields = ('user',)
+        fields = ('user', 'following',)
+

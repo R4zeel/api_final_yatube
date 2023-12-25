@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters, mixins
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
@@ -31,15 +32,28 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+    # Здесь без переопределения метода с пагинацией автотесты
+    # проваливаются - просто pagination_class использовать не
+    # получается. По поводу return None - так было указано
+    # в стандартном поведении метода paginate_queryset -
+    # тут я подумал, что при возврате None - возвращаются не
+    # пустые данные, а возвращаются данные без пагинации,
+    # но тут могу ошибаться, не уверен как этот метод точно
+    # работает. Заменил метод на другой, чтобы пройти тесты
+    # и не возвращать None
+    # def paginate_queryset(self, queryset):
+    #     if 'limit' in self.request.GET or 'offset' in self.request.GET:
+    #         return self.paginator.paginate_queryset(
+    #             queryset,
+    #             self.request,
+    #             view=self
+    #         )
+    #     return None
 
-    def paginate_queryset(self, queryset):
+    def get_paginated_response(self, data):
         if 'limit' in self.request.GET or 'offset' in self.request.GET:
-            return self.paginator.paginate_queryset(
-                queryset,
-                self.request,
-                view=self
-            )
-        return None
+            return self.paginator.get_paginated_response(data)
+        return Response(data)
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
@@ -73,8 +87,8 @@ class FollowViewSet(CreateListViewSet):
     search_fields = ('=following__username',)
 
     def get_queryset(self):
-        following = Follow.objects.all().filter(user=self.request.user)
-        return following
+        user = self.request.user
+        return user.follower.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

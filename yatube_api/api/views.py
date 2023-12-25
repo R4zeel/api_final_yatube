@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .permissions import IsAuthorOrReadOnly, ReadOnly
+from .permissions import IsAuthorOrReadOnly
 from posts.models import Post, Group, Comment, Follow
 from .serializers import (PostSerializer,
                           CommentSerializer,
@@ -16,16 +16,10 @@ from .serializers import (PostSerializer,
 class CreateListViewSet(mixins.CreateModelMixin,
                         mixins.ListModelMixin,
                         viewsets.GenericViewSet):
-    """
-    Вьюсет, поддерживающий действия 'create' и 'list'.
-    """
     pass
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    """
-    Вьюсет для операций с постами.
-    """
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -38,11 +32,6 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def get_permissions(self):
-        if self.action == 'retrieve':
-            return (ReadOnly(),)
-        return super().get_permissions()
-
     def paginate_queryset(self, queryset):
         if 'limit' in self.request.GET or 'offset' in self.request.GET:
             return self.paginator.paginate_queryset(
@@ -54,9 +43,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Вьюсет для получения информации о группах.
-    """
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
@@ -64,9 +50,6 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """
-    Вьюсет для операций с комментариями.
-    """
 
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -80,16 +63,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = get_object_or_404(Post, pk=self.kwargs['post_id'])
         serializer.save(author=self.request.user, post_id=post.id)
 
-    def get_permissions(self):
-        if self.action == 'retrieve':
-            return (ReadOnly(),)
-        return super().get_permissions()
-
 
 class FollowViewSet(CreateListViewSet):
-    """
-    Вьюсет для операций с подписками пользователей.
-    """
 
     queryset = Follow.objects.all()
     serializer_class = FollowSerializer

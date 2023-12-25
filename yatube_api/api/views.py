@@ -32,23 +32,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-    # Здесь без переопределения метода с пагинацией автотесты
-    # проваливаются - просто pagination_class использовать не
-    # получается. По поводу return None - так было указано
-    # в стандартном поведении метода paginate_queryset -
-    # тут я подумал, что при возврате None - возвращаются не
-    # пустые данные, а возвращаются данные без пагинации,
-    # но тут могу ошибаться, не уверен как этот метод точно
-    # работает. Заменил метод на другой, чтобы пройти тесты
-    # и не возвращать None
-    # def paginate_queryset(self, queryset):
-    #     if 'limit' in self.request.GET or 'offset' in self.request.GET:
-    #         return self.paginator.paginate_queryset(
-    #             queryset,
-    #             self.request,
-    #             view=self
-    #         )
-    #     return None
 
     def get_paginated_response(self, data):
         if 'limit' in self.request.GET or 'offset' in self.request.GET:
